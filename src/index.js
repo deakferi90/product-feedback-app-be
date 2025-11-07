@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import userRoutes from "./routes/userRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import { logger } from "./middlewares/logger.js";
+import cors from "cors";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,9 +13,17 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 app.use(logger);
 app.use("/assets", express.static(path.join(process.cwd(), "src/assets")));
+
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 app.use("/api/users", userRoutes);
 

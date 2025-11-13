@@ -3,12 +3,30 @@ import { currentUser, productRequests } from "../seeds/feedbackSeeds.js";
 
 const router = express.Router();
 
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+
+function fixImagePaths(data) {
+  if (Array.isArray(data)) return data.map(fixImagePaths);
+  if (data && typeof data === "object") {
+    const fixed = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (key === "image" && typeof value === "string") {
+        fixed[key] = `${BASE_URL}/${value.replace(/^\.\/+/, "")}`;
+      } else {
+        fixed[key] = fixImagePaths(value);
+      }
+    }
+    return fixed;
+  }
+  return data;
+}
+
 router.get("/currentUser", (req, res) => {
-  res.json(currentUser);
+  res.json(fixImagePaths(currentUser));
 });
 
 router.get("/productRequests", (req, res) => {
-  res.json(productRequests);
+  res.json(fixImagePaths(productRequests));
 });
 
 router.get("/productRequests/:id", (req, res) => {
@@ -16,7 +34,7 @@ router.get("/productRequests/:id", (req, res) => {
   const request = productRequests.find((pr) => pr.id === id);
   if (!request)
     return res.status(404).json({ message: "Product request not found" });
-  res.json(request);
+  res.json(fixImagePaths(request));
 });
 
 export default router;

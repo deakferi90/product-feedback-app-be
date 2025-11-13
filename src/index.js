@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(logger);
-app.use("/assets", express.static(path.join(process.cwd(), "src/assets")));
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 app.use(
   cors({

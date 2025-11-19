@@ -37,4 +37,41 @@ router.get("/productRequests/:id", (req, res) => {
   res.json(fixImagePaths(request));
 });
 
+router.post("/productRequests", (req, res) => {
+  const { content, productId } = req.body;
+
+  // Validate
+  if (!content || typeof content !== "string") {
+    return res.status(400).json({ message: "Comment content is required" });
+  }
+
+  // Find the product request by ID
+  const productRequest = productRequests.find((pr) => pr.id === productId);
+
+  if (!productRequest) {
+    return res.status(404).json({ message: "Product request not found" });
+  }
+
+  // Create the comment in EXACT SEED FORMAT
+  const newComment = {
+    id: Date.now(),
+    content,
+    user: {
+      image: currentUser.image,
+      name: currentUser.name,
+      username: currentUser.username,
+    },
+    replies: [],
+  };
+
+  // Add to comments
+  productRequest.comments.push(newComment);
+
+  // Return updated PR
+  res.status(201).json({
+    message: "Comment added successfully",
+    updatedRequest: productRequest,
+  });
+});
+
 export default router;
